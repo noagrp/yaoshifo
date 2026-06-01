@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>南无药师琉璃光如来</title>
+    <style>
+        /* Global Box Sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* CSS Formatting */
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Kaiti', 'STKaiti', serif; 
+            color: #ffd700;
+            overscroll-behavior: none; 
+            touch-action: none;
+        }
+
+        /* Obvious 琉璃光 (Lapis Lazuli) Color Changing Background */
+        #background {
+            position: fixed; 
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            /* Deep, glowing glass-like blues, cyans, and azures */
+            background: linear-gradient(60deg, 
+                #000033, /* Deep Dark Blue */
+                #003399, /* Rich Lapis Lazuli */
+                #00e5ff, /* Bright Cyan/Turquoise Light */
+                #0055ff, /* Vibrant Royal Blue */
+                #0088cc, /* Clear Azure */
+                #001144  /* Midnight Blue */
+            );
+            background-size: 300% 300%;
+            animation: gradientBG 12s ease infinite;
+            z-index: 1;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Canvas for Particles */
+        #particleCanvas {
+            position: fixed; 
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 2;
+            pointer-events: none; 
+        }
+
+        /* Intro Screen */
+        #introScreen {
+            position: fixed; 
+            top: 45%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Increased black shadow to ensure readability */
+        h1 { font-size: 2.7rem; letter-spacing: 10px; margin-bottom: 20px; color: #00ffff; text-shadow: 0 0 20px rgba(0, 85, 255, 0.8), 3px 3px 8px rgba(0,0,0,0.9);}
+
+        #enterBtn {
+            padding: 12px 30px; font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.7); color: #00ffff;
+            border: 1px solid #00ffff; border-radius: 4px;
+            cursor: pointer; transition: all 0.3s ease; font-family: inherit;
+        }
+        #enterBtn:hover { background: #00ffff; color: #000; box-shadow: 0 0 15px rgba(0, 255, 255, 0.6); }
+
+        /* Absolute Center Text Container */
+        #sutraContainer {
+            position: fixed; 
+            top: 0; left: 0;
+            width: 100vw; height: 100vh; 
+            z-index: 2;
+            opacity: 0; 
+            transition: opacity 3s ease-in-out;
+            pointer-events: none; 
+        }
+
+        .sutra-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            writing-mode: vertical-rl; 
+            text-orientation: upright;
+            white-space: nowrap; 
+            font-size: clamp(3.1rem, 9vmin, 2.7rem);
+            letter-spacing: clamp(10px, 3vmin, 25px);
+            /* Golden text with strong black shadow for contrast */
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 3px 3px 15px rgba(0,0,0,1);
+        }
+
+        /* Group of + Buttons */
+        .btn-group {
+            position: fixed; 
+            bottom: 30px; right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 5;
+            transition: opacity 0.5s;
+        }
+
+        .toggle-btn {
+            background: rgba(0, 15, 30, 0.85); 
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 12px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3), 2px 2px 5px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            text-align: left;
+            letter-spacing: 2px;
+        }
+        
+        .toggle-btn:hover { 
+            background: #00ffff; 
+            color: #001a33; 
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.7); 
+        }
+
+        /* Information Overlay Box */
+        #infoPanel {
+            position: fixed; 
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%; max-width: 800px; 
+            background: rgba(0, 15, 30, 0.95);
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            padding: 35px;
+            color: #e0f7fa;
+            font-family: 'Kaiti', 'STKaiti', sans-serif; 
+            z-index: 6;
+            box-shadow: 0 0 40px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,255,255,0.1);
+            line-height: 1.8;
+            max-height: 85vh;
+            overflow-y: auto; 
+            touch-action: pan-y; 
+        }
+        
+        #infoPanel h2 { 
+            color: #ffd700; margin-top: 0; font-size: 2rem; text-align: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 15px;
+        }
+        
+        #infoPanel h3 { color: #00ffff; font-size: 1.3rem; margin-top: 25px; margin-bottom: 10px;}
+        
+        .justify-text { text-align: justify; margin-bottom: 15px; font-size: 1.05rem; }
+        .highlight { color: #ffd700; font-weight: bold; }
+        .vow-text { margin-bottom: 8px; display: block; }
+        .vow-expl { color: #a0e8ef; font-size: 0.95em; margin-bottom: 15px; display: block; }
+
+        .close-btn {
+            display: block; padding: 8px 30px; margin: 35px auto 0;
+            background: transparent; border: 1px solid #ffd700; color: #ffd700;
+            cursor: pointer; border-radius: 4px; transition: 0.3s;
+            font-family: inherit; font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+        .close-btn:hover { background: #ffd700; color: #111; }
+
+        /* Custom Scrollbar */
+        #infoPanel::-webkit-scrollbar { width: 8px; }
+        #infoPanel::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
+        #infoPanel::-webkit-scrollbar-thumb { background: #00ffff; border-radius: 4px; }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #infoPanel { width: 92%; padding: 25px 20px; }
+            h1 { font-size: 1.3rem; letter-spacing: 6px; } 
+            .toggle-btn { padding: 10px 15px; font-size: 0.95rem; }
+            .btn-group { bottom: 20px; right: 20px; }
+        }
+
+        /* Utility Classes */
+        .hide { display: none !important; }
+        .show-block { display: block !important; }
+        .show-flex { display: flex !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Direct Raw GitHub Audio Element -->
+    <audio id="mantraAudio" loop>
+        <source src="https://raw.githubusercontent.com/noagrp/yaoshifo/main/yaoshifo.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div id="background"></div>
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Intro Button -->
+    <div id="introScreen">
+        <h1>药师佛</h1>
+        <button id="enterBtn">简介</button>
+    </div>
+
+    <!-- Vertical Center Text -->
+    <div id="sutraContainer" class="hide">
+        <div class="sutra-text">
+            南無藥師琉璃光如來
+        </div>
+    </div>
+
+    <!-- The Multiple + Buttons Group -->
+    <div class="btn-group hide" id="btnGroup">
+        <button class="toggle-btn" onclick="openPanel('about')">+ 关于</button>
+        <button class="toggle-btn" onclick="openPanel('vows')">+ 本愿与分身</button>
+        <button class="toggle-btn" onclick="openPanel('sutras')">+ 经典与真言</button>
+    </div>
+
+    <!-- The Dynamic Information Container -->
+    <div id="infoPanel" class="hide">
+        <div id="panelContent"></div>
+        <button class="close-btn" id="closeInfoBtn">关闭</button>
+    </div>
+
+    <script>
+        // --- 1. Dynamic Content Data ---
+        const panelData = {
+            about: `
+                <h2>药师琉璃光如来简介</h2>
+                <p class="justify-text"><strong>“南无药师琉璃光如来”</strong>（Bhaisajyaguru），又称药师佛、大医王佛，是大乘佛教中极其重要的一尊佛，为东方净琉璃世界的教主。</p>
+                <p class="justify-text"><span class="highlight">名号释义：</span><br>
+                “药”代表他能治愈众生身心两方面的疾病——不仅能消除身体的病痛与现世的灾厄，更能治愈贪、嗔、痴这三种根本的心灵之毒。<br>
+                “琉璃光”比喻其身心清净无染，如同内外明彻的青色宝石（琉璃），光明广大，照耀无尽世界。</p>
+                <p class="justify-text"><span class="highlight">东方净琉璃世界：</span><br>
+                这是药师佛的清净国土，其庄严程度与西方极乐世界无异。在这个世界中，没有恶道，甚至没有痛苦的名称。大地由净琉璃构成，城阙宫殿皆是七宝所成。</p>
+                <p class="justify-text"><span class="highlight">左右胁侍与护法：</span><br>
+                药师佛有两位大菩萨胁侍：<strong>日光遍照菩萨</strong>与<strong>月光遍照菩萨</strong>，代表无量智慧与慈悲光明。此外，还有著名的<strong>十二药叉大将</strong>作为护法，每一位大将统领七千药叉眷属，在十二时辰中轮流护持修持药师法门的众生。</p>
+                <p class="justify-text"><span class="highlight">佛辰纪念：</span><br>
+                在汉传佛教中，药师佛的圣诞被定为每年<strong>农历九月三十日</strong>。</p>
+            `,
+            vows: `
+                <h2>七佛药师与本愿功德</h2>
+                <p class="justify-text">在《药师琉璃光七佛本愿功德经》中提到，除了本尊药师琉璃光如来之外，东方还有另外六尊佛（合称七佛药师）。他们都是为了救度不同根机的众生而发的宏愿，总集了现世安乐与出世解脱的究竟利益。以下是这七尊佛的具体愿力：</p>
+
+                <h3 class="highlight">1. 善名称吉祥王如来（发八大愿）</h3>
+                <p class="justify-text">
+                <span class="vow-text">一愿：除诸病苦，令得安隐。</span><span class="vow-expl">（释义：消除众生一切身心疾病与痛苦，使其获得安康与宁静。）</span>
+                <span class="vow-text">二愿：盲聋喑哑，诸根具足。</span><span class="vow-expl">（释义：令失明、失聪、不能言语等残疾者，恢复六根健全完好。）</span>
+                <span class="vow-text">三愿：灭贪嗔痴，令生慈悲。</span><span class="vow-expl">（释义：消除众生内心的贪婪、愤怒与愚痴，生出清净的慈悲心。）</span>
+                <span class="vow-text">四愿：贫穷困苦，衣食丰足。</span><span class="vow-expl">（释义：解救生活贫困艰难的人，让他们衣物食物皆丰足无忧。）</span>
+                <span class="vow-text">五愿：脱离牢狱，解脱枷锁刑罚。</span><span class="vow-expl">（释义：让受到牢狱之灾或严酷刑罚的人，能够获得宽恕与解脱。）</span>
+                <span class="vow-text">六愿：免除恶兽、刀杖等一切险难。</span><span class="vow-expl">（释义：保佑众生远离猛兽毒虫的侵咬，以及暴力武器的伤害。）</span>
+                <span class="vow-text">七愿：若有斗诤，皆得解息慈心。</span><span class="vow-expl">（释义：化解人与人之间的矛盾、争斗与诉讼，彼此生起和睦之心。）</span>
+                <span class="vow-text">八愿：江河险难，皆得安隐济渡。</span><span class="vow-expl">（释义：保佑在江河湖海中遭遇风浪危险的人，能够平安渡过。）</span>
+                </p>
+
+                <h3 class="highlight">2. 宝月智严光音自在王如来（发八大愿）</h3>
+                <p class="justify-text">
+                <span class="vow-text">一愿：营农商贾，皆得繁盛，资生具足。</span><span class="vow-expl">（释义：保佑务农或经商者事业繁荣顺利，生活物资充裕不缺。）</span>
+                <span class="vow-text">二愿：解脱寒热饥渴之苦。</span><span class="vow-expl">（释义：解除众生受严寒、酷暑以及饥饿干渴的身体痛苦。）</span>
+                <span class="vow-text">三愿：女身受苦，转为男身。</span><span class="vow-expl">（释义：厌恶并承受女性生理或社会地位苦楚者，来世转为男身。）</span>
+                <span class="vow-text">四愿：若犯戒律，闻名还得清净。</span><span class="vow-expl">（释义：不慎毁犯戒律的人，听闻佛号后能重获清净，不堕恶道。）</span>
+                <span class="vow-text">五愿：夜叉恶鬼，不能恼乱。</span><span class="vow-expl">（释义：保佑众生不受邪灵、恶鬼、夜叉的惊吓、干扰与伤害。）</span>
+                <span class="vow-text">六愿：转下劣为聪慧，得生善道。</span><span class="vow-expl">（释义：让愚昧低劣之人开启智慧，死后能投生至美好善道。）</span>
+                <span class="vow-text">七愿：远离幽冥恶道，趋向菩提。</span><span class="vow-expl">（释义：保证众生不再堕入地狱等黑暗恶道，走上觉悟的道路。）</span>
+                <span class="vow-text">八愿：解脱一切忧苦怖畏。</span><span class="vow-expl">（释义：彻底消除众生内心所有的忧愁、痛苦与恐惧感。）</span>
+                </p>
+
+                <h3 class="highlight">3. 金色宝光妙行成就如来（发四大愿）</h3>
+                <p class="justify-text">
+                <span class="vow-text">一愿：造杀生业者，生起慈悲心。</span><span class="vow-expl">（释义：令习惯杀戮生灵的人悔过，生出爱护生命的慈悲心。）</span>
+                <span class="vow-text">二愿：造偷盗业者，生起布施心。</span><span class="vow-expl">（释义：令有偷盗习气的人改恶从善，乐于布施帮助他人。）</span>
+                <span class="vow-text">三愿：欺凌孤弱者，得离苦解脱，常受安乐。</span><span class="vow-expl">（释义：保护被欺凌的弱势群体，让他们脱离苦难，常保安宁。）</span>
+                <span class="vow-text">四愿：毁谤正法者，生正见出离恶道。</span><span class="vow-expl">（释义：使毁谤正法的人重新建立正确知见，免于堕入恶道。）</span>
+                </p>
+
+                <h3 class="highlight">4. 无忧最胜吉祥如来（发四大愿）</h3>
+                <p class="justify-text">
+                <span class="vow-text">一愿：常为忧苦逼迫者，得无愁恼。</span><span class="vow-expl">（释义：让长年受重重忧愁烦恼折磨的人，重获轻松与快乐。）</span>
+                <span class="vow-text">二愿：造恶业堕幽冥者，解脱苦难，生于人天。</span><span class="vow-expl">（释义：即使因作恶堕入地狱，也能仰仗佛力脱苦，转生人天善趣。）</span>
+                <span class="vow-text">三愿：生于下贱者，得生尊贵。</span><span class="vow-expl">（释义：出身低微、常受屈辱的人，来世能获得受人尊敬的尊贵之身。）</span>
+                <span class="vow-text">四愿：受夜叉恶鬼恼乱者，解脱安隐。</span><span class="vow-expl">（释义：被妖魔鬼怪缠身的人，能迅速解脱，恢复生活的平静安全。）</span>
+                </p>
+
+                <h3 class="highlight">5. 法海雷音如来（发四大愿）</h3>
+                <p class="justify-text">
+                <span class="vow-text">一愿：信奉邪道者，皆生正见，不堕恶趣。</span><span class="vow-expl">（释义：让误信邪教外道的人醒悟，确立正知正见，免遭恶报。）</span>
+                <span class="vow-text">二愿：生于边地恶处者，得生善处。</span><span class="vow-expl">（释义：生在偏远艰苦或充满恶念之地的人，能转生至环境良好的地方。）</span>
+                <span class="vow-text">三愿：饥寒乏少者，得衣食具足。</span><span class="vow-expl">（释义：让忍饥挨冻、极度贫乏的人，获得充足的衣物与食物。）</span>
+                <span class="vow-text">四愿：互相斗诤者，生起慈心。</span><span class="vow-expl">（释义：让彼此敌对、互相伤害的人，化干戈为玉帛，生起和睦慈心。）</span>
+                </p>
+
+                <h3 class="highlight">6. 法海胜慧游戏神通如来（发四大愿）</h3>
+                <p class="justify-text">
+                <span class="vow-text">一愿：造恶业者，改邪归正，种植善根。</span><span class="vow-expl">（释义：让经常作恶的人，能够痛改前非，开始行善积德。）</span>
+                <span class="vow-text">二愿：乐于小乘者，回向大乘菩提。</span><span class="vow-expl">（释义：让只求个人解脱的修行者，发散出普度所有众生的大乘心量。）</span>
+                <span class="vow-text">三愿：无归无救、忧悲逼切者，皆得解脱。</span><span class="vow-expl">（释义：让孤苦无依、陷入绝境悲痛的人，得到庇护与彻底的解脱。）</span>
+                <span class="vow-text">四愿：造恶业将受暗冥苦者，佛光普照，脱离业报。</span><span class="vow-expl">（释义：即将因恶业堕入幽冥受苦的人，蒙佛光照耀，免去罪罚之苦。）</span>
+                </p>
+                
+                <h3 class="highlight">7. 本尊：药师琉璃光如来（发十二大愿）</h3>
+                <p class="justify-text">
+                <span class="vow-text">一愿：自身光明照无边。</span><span class="vow-expl">（释义：成佛时身体发大光明，照耀无量世界，令众生如佛一般庄严。）</span>
+                <span class="vow-text">二愿：身如琉璃内外明。</span><span class="vow-expl">（释义：身如琉璃般清净剔透，光明照彻幽冥，令众生开启智慧行善。）</span>
+                <span class="vow-text">三愿：令众生所求皆得。</span><span class="vow-expl">（释义：以无量智慧方便，让众生拥有无穷的物质受用，永不匮乏。）</span>
+                <span class="vow-text">四愿：导众生安立大乘。</span><span class="vow-expl">（释义：引导修行邪道或小乘法的人，全部回归大乘菩提正道。）</span>
+                <span class="vow-text">五愿：得清净戒不堕恶道。</span><span class="vow-expl">（释义：令修行者持戒清净，即使偶有毁犯，闻名也能恢复清净免堕恶道。）</span>
+                <span class="vow-text">六愿：诸根具足解除病苦。</span><span class="vow-expl">（释义：让残疾、丑陋、百病缠身的人，闻名即得身体端正、六根完好。）</span>
+                <span class="vow-text">七愿：除病安乐乃至成佛。</span><span class="vow-expl">（释义：贫穷多病、无依无靠的人，闻佛名即疾病消除，安乐乃至成佛。）</span>
+                <span class="vow-text">八愿：转女成男得证菩提。</span><span class="vow-expl">（释义：厌恶女身之苦的女子，闻佛名即可转为男身，最终成就佛果。）</span>
+                <span class="vow-text">九愿：解脱魔网回邪归正。</span><span class="vow-expl">（释义：帮众生挣脱魔王外道的控制，确立正见，安心修行菩萨道。）</span>
+                <span class="vow-text">十愿：解脱王法灾难狱苦。</span><span class="vow-expl">（释义：被严刑拷打、关押牢狱或面临死难的人，闻名即可消灾解厄。）</span>
+                <span class="vow-text">十一愿：得妙饮食饱足色身。</span><span class="vow-expl">（释义：饥渴难耐甚至为求食作恶的人，先赐予美食饱足，再以佛法度化。）</span>
+                <span class="vow-text">十二愿：得妙衣物远离寒热。</span><span class="vow-expl">（释义：贫寒无衣的人，赐予各种美丽的衣服和庄严的宝物，满足其心。）</span>
+                </p>
+            `,
+            sutras: `
+                <h2>经典、佛号与药师灌顶真言</h2>
+                <h3>【主要经典】</h3>
+                <p class="justify-text"><strong>《药师琉璃光如来本愿功德经》：</strong>由唐代玄奘大师翻译的版本最为流通。经中详细记载了药师佛的十二大愿、东方净琉璃世界的庄严、念诵药师佛名号的功德，以及如何通过供养、燃灯、悬幡来延寿灭罪的法门。</p>
+                
+                <h3>【持诵佛号】</h3>
+                <p class="justify-text">日常修行中最简便且威力巨大的方法，便是专心称念：<br>
+                <span class="highlight" style="font-size: 1.5rem; display: block; text-align: center; margin: 15px 0;">南无药师琉璃光如来</span>
+                常念此名号，能拔除一切业障，消灾延寿，免除九种横死，并在临终时得八大菩萨接引，随愿往生十方净土。</p>
+
+                <h3>【药师灌顶真言】</h3>
+                <p class="justify-text">此神咒出自药师经，是药师佛在光中演说，专为众生治病、消灾、拔苦的无上咒语。持咒前，常置一杯清水于佛前，诵咒108遍后饮用（称为药师水）。</p>
+                <p class="justify-text" style="background: rgba(0, 255, 255, 0.1); padding: 15px; border-radius: 6px; border-left: 3px solid #00ffff;">
+                <strong>【梵文音译】</strong><br>
+                那谟薄伽伐帝。鞞杀社。窭噜薜琉璃。<br>
+                钵喇婆。喝啰阇也。怛他揭多也。<br>
+                阿啰诃帝。三藐三勃陀也。怛侄他。<br>
+                <strong>唵。鞞杀逝。鞞杀逝。鞞杀社。三没揭帝。莎诃。</strong><br>
+                </p>
+            `
+        };
+
+        // --- 2. UI Elements ---
+        const enterBtn = document.getElementById('enterBtn');
+        const introScreen = document.getElementById('introScreen');
+        const mantraAudio = document.getElementById('mantraAudio');
+        const sutraContainer = document.getElementById('sutraContainer');
+        const btnGroup = document.getElementById('btnGroup');
+        const infoPanel = document.getElementById('infoPanel');
+        const panelContent = document.getElementById('panelContent');
+        const closeInfoBtn = document.getElementById('closeInfoBtn');
+        
+        let particlesActive = false;
+
+        // --- 3. Interactions ---
+        enterBtn.addEventListener('click', () => {
+            mantraAudio.play(); 
+            
+            introScreen.classList.add('hide');
+            sutraContainer.classList.remove('hide');
+            sutraContainer.classList.add('show-block'); 
+            
+            setTimeout(() => {
+                btnGroup.classList.remove('hide');
+                btnGroup.classList.add('show-flex');
+            }, 1000);
+            
+            setTimeout(() => {
+                sutraContainer.style.opacity = 1;
+            }, 100);
+
+            particlesActive = true;
+            initParticles();
+            animateParticles();
+        });
+
+        // Open specific panel logic
+        window.openPanel = function(section) {
+            panelContent.innerHTML = panelData[section]; 
+            infoPanel.classList.remove('hide');
+            infoPanel.classList.add('show-block');
+            infoPanel.scrollTop = 0; 
+        };
+
+        closeInfoBtn.addEventListener('click', () => {
+            infoPanel.classList.remove('show-block');
+            infoPanel.classList.add('hide');
+        });
+
+        // --- 4. Glowing Light Particle System ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+        const numberOfParticles = 100;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 4 + 2; // Slightly larger sizes to carry the light bloom
+                this.speedX = (Math.random() * 1) - 0.5;
+                this.speedY = (Math.random() * -1) - 0.5;
+                this.opacity = Math.random() * 0.5 + 0.4;
+                
+                // Generates a random color hue from 0 to 360 for the rainbow effect
+                this.hue = Math.random() * 360; 
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Slowly shift the color hue over time for a dynamic rainbow effect
+                this.hue += 0.5;
+                if(this.hue > 360) this.hue = 0;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                // ADDITIVE BLENDING: This creates a true, glowing "light particle" effect.
+                // When particles cross paths, their lights merge and brighten instead of just overlapping.
+                ctx.globalCompositeOperation = 'lighter';
+                
+                // HSL logic locked to prevent white output, ensuring purely vibrant colors
+                const colorStr = `hsla(${this.hue}, 100%, 60%, ${this.opacity})`;
+                const glowStr = `hsla(${this.hue}, 100%, 50%, 1)`;
+
+                ctx.fillStyle = colorStr;
+                
+                // Increased shadowBlur to create a much softer, more diffuse light shine
+                ctx.shadowBlur = 40; 
+                ctx.shadowColor = glowStr; 
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+
+                // Reset composite to prevent bleeding into other canvas elements (if any are added later)
+                ctx.globalCompositeOperation = 'source-over';
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            if (!particlesActive) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (particlesActive) initParticles();
+        });
+    </script>
+</body>
+</html>
