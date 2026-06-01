@@ -47,15 +47,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Canvas for Particles */
-        #particleCanvas {
-            position: fixed; 
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            z-index: 2;
-            pointer-events: none; 
-        }
-
         /* Intro Screen */
         #introScreen {
             position: fixed; 
@@ -203,7 +194,6 @@
     </audio>
 
     <div id="background"></div>
-    <canvas id="particleCanvas"></canvas>
 
     <!-- Intro Button -->
     <div id="introScreen">
@@ -354,8 +344,6 @@
         const infoPanel = document.getElementById('infoPanel');
         const panelContent = document.getElementById('panelContent');
         const closeInfoBtn = document.getElementById('closeInfoBtn');
-        
-        let particlesActive = false;
 
         // --- 3. Interactions ---
         enterBtn.addEventListener('click', () => {
@@ -373,10 +361,6 @@
             setTimeout(() => {
                 sutraContainer.style.opacity = 1;
             }, 100);
-
-            particlesActive = true;
-            initParticles();
-            animateParticles();
         });
 
         // Open specific panel logic
@@ -390,96 +374,6 @@
         closeInfoBtn.addEventListener('click', () => {
             infoPanel.classList.remove('show-block');
             infoPanel.classList.add('hide');
-        });
-
-        // --- 4. Glowing Radial Light Particle System ---
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let particlesArray = [];
-        const numberOfParticles = 100;
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                // Significantly larger radius to allow the radial gradient to look like a soft light bloom
-                this.size = Math.random() * 15 + 10; 
-                this.speedX = (Math.random() * 1) - 0.5;
-                this.speedY = (Math.random() * -1) - 0.5;
-                this.opacity = Math.random() * 0.5 + 0.4;
-                
-                // Generates a random color hue from 0 to 360 for the rainbow effect
-                this.hue = Math.random() * 360; 
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                // Slowly shift the color hue over time for a dynamic rainbow effect
-                this.hue += 0.5;
-                if(this.hue > 360) this.hue = 0;
-
-                if (this.x > canvas.width) this.x = 0;
-                if (this.x < 0) this.x = canvas.width;
-                if (this.y < 0) this.y = canvas.height;
-            }
-
-            draw() {
-                // ADDITIVE BLENDING: This creates a true, glowing "light particle" effect.
-                ctx.globalCompositeOperation = 'lighter';
-                
-                // Create a radial gradient (Soft Light Effect) rather than a solid color
-                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-                
-                // Inner core (brightest)
-                gradient.addColorStop(0, `hsla(${this.hue}, 100%, 75%, ${this.opacity})`);
-                // Mid glow (true color)
-                gradient.addColorStop(0.4, `hsla(${this.hue}, 100%, 55%, ${this.opacity * 0.6})`);
-                // Outer edge (fades completely to transparent)
-                gradient.addColorStop(1, `hsla(${this.hue}, 100%, 55%, 0)`);
-
-                ctx.fillStyle = gradient;
-                
-                // Soft external shadow to add extra radiant bloom
-                ctx.shadowBlur = 20; 
-                ctx.shadowColor = `hsla(${this.hue}, 100%, 50%, 0.8)`; 
-                
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fill();
-
-                // Reset composite
-                ctx.globalCompositeOperation = 'source-over';
-            }
-        }
-
-        function initParticles() {
-            particlesArray = [];
-            for (let i = 0; i < numberOfParticles; i++) {
-                particlesArray.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            if (!particlesActive) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            if (particlesActive) initParticles();
         });
     </script>
 </body>
