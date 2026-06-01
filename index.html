@@ -97,8 +97,9 @@
             white-space: nowrap; 
             font-size: clamp(3.1rem, 9vmin, 2.7rem);
             letter-spacing: clamp(10px, 3vmin, 25px);
-            /* Golden text with strong black shadow for contrast */
-            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 3px 3px 15px rgba(0,0,0,1);
+            /* Changed to match the 琉璃 (Cyan/Blue) color of the intro text */
+            color: #00ffff;
+            text-shadow: 0 0 30px rgba(0, 85, 255, 0.8), 3px 3px 15px rgba(0,0,0,1);
         }
 
         /* Group of + Buttons */
@@ -391,7 +392,7 @@
             infoPanel.classList.add('hide');
         });
 
-        // --- 4. Glowing Light Particle System ---
+        // --- 4. Glowing Radial Light Particle System ---
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         
@@ -405,7 +406,8 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 4 + 2; // Slightly larger sizes to carry the light bloom
+                // Significantly larger radius to allow the radial gradient to look like a soft light bloom
+                this.size = Math.random() * 15 + 10; 
                 this.speedX = (Math.random() * 1) - 0.5;
                 this.speedY = (Math.random() * -1) - 0.5;
                 this.opacity = Math.random() * 0.5 + 0.4;
@@ -429,25 +431,30 @@
 
             draw() {
                 // ADDITIVE BLENDING: This creates a true, glowing "light particle" effect.
-                // When particles cross paths, their lights merge and brighten instead of just overlapping.
                 ctx.globalCompositeOperation = 'lighter';
                 
-                // HSL logic locked to prevent white output, ensuring purely vibrant colors
-                const colorStr = `hsla(${this.hue}, 100%, 60%, ${this.opacity})`;
-                const glowStr = `hsla(${this.hue}, 100%, 50%, 1)`;
-
-                ctx.fillStyle = colorStr;
+                // Create a radial gradient (Soft Light Effect) rather than a solid color
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
                 
-                // Increased shadowBlur to create a much softer, more diffuse light shine
-                ctx.shadowBlur = 40; 
-                ctx.shadowColor = glowStr; 
+                // Inner core (brightest)
+                gradient.addColorStop(0, `hsla(${this.hue}, 100%, 75%, ${this.opacity})`);
+                // Mid glow (true color)
+                gradient.addColorStop(0.4, `hsla(${this.hue}, 100%, 55%, ${this.opacity * 0.6})`);
+                // Outer edge (fades completely to transparent)
+                gradient.addColorStop(1, `hsla(${this.hue}, 100%, 55%, 0)`);
+
+                ctx.fillStyle = gradient;
+                
+                // Soft external shadow to add extra radiant bloom
+                ctx.shadowBlur = 20; 
+                ctx.shadowColor = `hsla(${this.hue}, 100%, 50%, 0.8)`; 
                 
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.closePath();
                 ctx.fill();
 
-                // Reset composite to prevent bleeding into other canvas elements (if any are added later)
+                // Reset composite
                 ctx.globalCompositeOperation = 'source-over';
             }
         }
